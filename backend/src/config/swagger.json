@@ -1,0 +1,1006 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "E-Ricks API",
+    "version": "1.0.0",
+    "description": "Production-grade backend API and real-time Socket.io server spec for E-Ricks ride-hailing and delivery ecosystem."
+  },
+  "servers": [
+    {
+      "url": "http://localhost:5000",
+      "description": "Local Development Server"
+    }
+  ],
+  "components": {
+    "securitySchemes": {
+      "BearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT",
+        "description": "Enter JWT token in the format 'Bearer <token>'"
+      }
+    },
+    "schemas": {
+      "User": {
+        "type": "object",
+        "properties": {
+          "_id": { "type": "string", "example": "6a3d5029f6b26ab572c903de" },
+          "phone": { "type": "string", "example": "+919999999999" },
+          "role": { "type": "string", "enum": ["passenger", "driver", "admin"], "example": "passenger" },
+          "name": { "type": "string", "example": "Rohan Sharma" },
+          "email": { "type": "string", "example": "rohan@example.com" },
+          "profilePicture": { "type": "string", "example": "" },
+          "language": { "type": "string", "enum": ["en", "hi", "or", "ben"], "example": "hi" },
+          "savedPlaces": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "label": { "type": "string", "example": "Home" },
+                "address": { "type": "string", "example": "12, Saket Nagar, Indore" },
+                "latitude": { "type": "number", "example": 22.7196 },
+                "longitude": { "type": "number", "example": 75.8577 }
+              }
+            }
+          },
+          "emergencyContacts": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "properties": {
+                "name": { "type": "string", "example": "Aarti Sharma" },
+                "phone": { "type": "string", "example": "+919876543210" },
+                "relationship": { "type": "string", "example": "Sister" }
+              }
+            }
+          },
+          "rating": { "type": "number", "example": 4.8 },
+          "ratingCount": { "type": "number", "example": 15 },
+          "isActive": { "type": "boolean", "example": true }
+        }
+      },
+      "Driver": {
+        "type": "object",
+        "properties": {
+          "_id": { "type": "string", "example": "6a3d5029f6b26ab572c903e9" },
+          "userId": { "type": "string", "example": "6a3d5029f6b26ab572c903d8" },
+          "status": { "type": "string", "enum": ["offline", "online", "break"], "example": "online" },
+          "verificationStatus": { "type": "string", "enum": ["pending_registration", "pending_verification", "verified", "rejected"], "example": "verified" },
+          "rejectionReason": { "type": "string", "example": "" },
+          "documents": {
+            "type": "object",
+            "properties": {
+              "aadhaarNumber": { "type": "string", "example": "123456789012" },
+              "aadhaarUrl": { "type": "string", "example": "http://docs.ericks.com/aadhaar_satnam.jpg" },
+              "licenseNumber": { "type": "string", "example": "DL-INDORE-2026-9900" },
+              "licenseUrl": { "type": "string", "example": "http://docs.ericks.com/dl_satnam.jpg" },
+              "vehicleRcNumber": { "type": "string", "example": "RC-MP-09-ER-5544" },
+              "vehicleRcUrl": { "type": "string", "example": "http://docs.ericks.com/rc_satnam.jpg" },
+              "vehiclePhotoUrl": { "type": "string", "example": "http://docs.ericks.com/vehicle_satnam.jpg" },
+              "selfieUrl": { "type": "string", "example": "http://docs.ericks.com/selfie_satnam.jpg" }
+            }
+          },
+          "vehicle": {
+            "type": "object",
+            "properties": {
+              "make": { "type": "string", "example": "Mahindra" },
+              "model": { "type": "string", "example": "Treo" },
+              "plateNumber": { "type": "string", "example": "MP09ER5544" },
+              "capacity": { "type": "number", "example": 4 },
+              "batteryLevel": { "type": "number", "example": 85 },
+              "isClosedBody": { "type": "boolean", "example": true }
+            }
+          },
+          "location": {
+            "type": "object",
+            "properties": {
+              "type": { "type": "string", "example": "Point" },
+              "coordinates": { "type": "array", "items": { "type": "number" }, "example": [75.858, 22.72] }
+            }
+          },
+          "penalties": {
+            "type": "object",
+            "properties": {
+              "dailyCancellations": { "type": "number", "example": 1 },
+              "weeklyCancellations": { "type": "number", "example": 3 },
+              "ridePriorityScore": { "type": "number", "example": 100 }
+            }
+          }
+        }
+      },
+      "Ride": {
+        "type": "object",
+        "properties": {
+          "_id": { "type": "string", "example": "6a3d5029f6b26ab572c903ee" },
+          "passengerId": { "type": "string", "example": "6a3d5029f6b26ab572c903de" },
+          "driverId": { "type": "string", "example": "6a3d5029f6b26ab572c903e9" },
+          "status": { "type": "string", "enum": ["requested", "bidding", "accepted", "arrived", "started", "completed", "cancelled"], "example": "completed" },
+          "poolingAllowed": { "type": "boolean", "example": false },
+          "passengerCount": { "type": "number", "example": 1 },
+          "pickup": {
+            "type": "object",
+            "properties": {
+              "address": { "type": "string", "example": "12, Saket Nagar, Indore" },
+              "location": {
+                "type": "object",
+                "properties": {
+                  "type": { "type": "string", "example": "Point" },
+                  "coordinates": { "type": "array", "items": { "type": "number" }, "example": [75.8577, 22.7196] }
+                }
+              }
+            }
+          },
+          "destination": {
+            "type": "object",
+            "properties": {
+              "address": { "type": "string", "example": "Indore Junction Railway Station" },
+              "location": {
+                "type": "object",
+                "properties": {
+                  "type": { "type": "string", "example": "Point" },
+                  "coordinates": { "type": "array", "items": { "type": "number" }, "example": [75.864, 22.7258] }
+                }
+              }
+            }
+          },
+          "suggestedFare": { "type": "number", "example": 43 },
+          "finalFare": { "type": "number", "example": 49 },
+          "otp": {
+            "type": "object",
+            "properties": {
+              "startRide": { "type": "string", "example": "5678" },
+              "completeRide": { "type": "string", "example": "9012" }
+            }
+          },
+          "waitingTimeSeconds": { "type": "number", "example": 420 },
+          "waitingChargesApplied": { "type": "number", "example": 4 },
+          "payment": {
+            "type": "object",
+            "properties": {
+              "method": { "type": "string", "example": "cash" },
+              "status": { "type": "string", "example": "completed" }
+            }
+          }
+        }
+      },
+      "Delivery": {
+        "type": "object",
+        "properties": {
+          "_id": { "type": "string", "example": "6a3d5029f6b26ab572c904ff" },
+          "senderId": { "type": "string", "example": "6a3d5029f6b26ab572c903de" },
+          "driverId": { "type": "string", "example": "6a3d5029f6b26ab572c903e9" },
+          "status": { "type": "string", "enum": ["requested", "bidding", "accepted", "picked_up", "delivered", "cancelled"], "example": "delivered" },
+          "packageType": { "type": "string", "enum": ["grocery", "medicine", "documents", "parcel", "other"], "example": "medicine" },
+          "isFragile": { "type": "boolean", "example": true },
+          "pickupAddress": { "type": "string", "example": "MedPlus Pharmacy, Vijay Nagar" },
+          "pickupCoords": { "type": "array", "items": { "type": "number" }, "example": [75.895, 22.752] },
+          "recipientName": { "type": "string", "example": "Ramesh Kumar" },
+          "recipientPhone": { "type": "string", "example": "+919425012345" },
+          "dropoffAddress": { "type": "string", "example": "Scheme 54, Indore" },
+          "dropoffCoords": { "type": "array", "items": { "type": "number" }, "example": [75.892, 22.748] },
+          "otp": { "type": "string", "example": "4432" },
+          "suggestedFare": { "type": "number", "example": 55 },
+          "finalFare": { "type": "number", "example": 55 }
+        }
+      }
+    }
+  },
+  "paths": {
+    "/": {
+      "get": {
+        "summary": "Root Endpoint",
+        "description": "Returns basic backend details and links to documentation and health check.",
+        "responses": {
+          "200": {
+            "description": "Welcome details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "project": { "type": "string", "example": "E-Ricks Backend" },
+                    "status": { "type": "string", "example": "Running" },
+                    "documentation": { "type": "string", "example": "http://localhost:5000/api/docs" },
+                    "health": { "type": "string", "example": "http://localhost:5000/health" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/health": {
+      "get": {
+        "summary": "Health Check Status",
+        "description": "Provides system status, server runtime variables, uptime metrics, and database connectivity state.",
+        "responses": {
+          "200": {
+            "description": "Health diagnostics",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean", "example": true },
+                    "server": { "type": "string", "example": "running" },
+                    "database": { "type": "string", "example": "connected" },
+                    "uptime": { "type": "string", "example": "0h 15m 32s" },
+                    "version": { "type": "string", "example": "1.0.0" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/auth/send-otp": {
+      "post": {
+        "summary": "Send Login OTP",
+        "description": "Simulates dispatching a 4-digit verification code to the target phone number.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["phone"],
+                "properties": {
+                  "phone": { "type": "string", "example": "+919999999999" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "OTP sent details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean", "example": true },
+                    "message": { "type": "string", "example": "OTP sent successfully" },
+                    "otp": { "type": "string", "example": "1234" }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Missing phone number"
+          }
+        }
+      }
+    },
+    "/api/auth/verify-otp": {
+      "post": {
+        "summary": "Verify Login OTP",
+        "description": "Authenticates verification code, logs user in, and issues JWT access tokens.",
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["phone", "otp", "role"],
+                "properties": {
+                  "phone": { "type": "string", "example": "+919999999999" },
+                  "otp": { "type": "string", "example": "1234" },
+                  "role": { "type": "string", "enum": ["passenger", "driver", "admin"], "example": "passenger" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful authentication",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean", "example": true },
+                    "token": { "type": "string", "example": "eyJhbGciOiJIUzI1NiIsIn..." },
+                    "user": { "$ref": "#/components/schemas/User" },
+                    "isNewUser": { "type": "boolean", "example": false }
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Invalid credentials or OTP"
+          }
+        }
+      }
+    },
+    "/api/auth/register": {
+      "post": {
+        "summary": "Register New Profile Details",
+        "description": "Completes name and profile configurations for newly authenticated accounts.",
+        "security": [{ "BearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["name"],
+                "properties": {
+                  "name": { "type": "string", "example": "Rohan Sharma" },
+                  "email": { "type": "string", "example": "rohan@example.com" },
+                  "language": { "type": "string", "enum": ["en", "hi", "or", "ben"], "example": "hi" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Registration details updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean", "example": true },
+                    "message": { "type": "string", "example": "Profile registered successfully" },
+                    "user": { "$ref": "#/components/schemas/User" }
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized access token"
+          }
+        }
+      }
+    },
+    "/api/auth/profile": {
+      "get": {
+        "summary": "Get Profile Config",
+        "description": "Fetches current user coordinates, saved addresses, and active profiles.",
+        "security": [{ "BearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "Profile JSON",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean", "example": true },
+                    "user": { "$ref": "#/components/schemas/User" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "summary": "Update Profile Details",
+        "description": "Modifies profile variables including saved places or SOS contacts.",
+        "security": [{ "BearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "name": { "type": "string", "example": "Rohan Sharma" },
+                  "email": { "type": "string", "example": "rohan@example.com" },
+                  "language": { "type": "string", "example": "hi" },
+                  "savedPlaces": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "label": { "type": "string", "example": "Home" },
+                        "address": { "type": "string", "example": "12, Saket Nagar, Indore" },
+                        "latitude": { "type": "number", "example": 22.7196 },
+                        "longitude": { "type": "number", "example": 75.8577 }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Profile saved",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean", "example": true },
+                    "message": { "type": "string", "example": "Profile updated successfully" },
+                    "user": { "$ref": "#/components/schemas/User" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/driver/documents": {
+      "post": {
+        "summary": "Upload Driver Documents",
+        "description": "Stores KYC documentation paths (Aadhaar, License, RC plates, verification selfie). Sets status to pending verification.",
+        "security": [{ "BearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "aadhaarNumber": { "type": "string", "example": "123456789012" },
+                  "aadhaarUrl": { "type": "string", "example": "http://docs.ericks.com/aadhaar_satnam.jpg" },
+                  "licenseNumber": { "type": "string", "example": "DL-INDORE-2026-9900" },
+                  "licenseUrl": { "type": "string", "example": "http://docs.ericks.com/dl_satnam.jpg" },
+                  "vehicleRcNumber": { "type": "string", "example": "RC-MP-09-ER-5544" },
+                  "vehicleRcUrl": { "type": "string", "example": "http://docs.ericks.com/rc_satnam.jpg" },
+                  "vehiclePhotoUrl": { "type": "string", "example": "http://docs.ericks.com/vehicle_satnam.jpg" },
+                  "selfieUrl": { "type": "string", "example": "http://docs.ericks.com/selfie_satnam.jpg" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Document queue registered",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean", "example": true },
+                    "message": { "type": "string", "example": "Documents uploaded successfully" },
+                    "driver": { "$ref": "#/components/schemas/Driver" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/driver/vehicle": {
+      "post": {
+        "summary": "Update Vehicle Specifications",
+        "description": "Saves e-rickshaw registration, chassis make/model, passenger capacity (4 or 6), and closed weather body indicators.",
+        "security": [{ "BearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["make", "model", "plateNumber"],
+                "properties": {
+                  "make": { "type": "string", "example": "Mahindra" },
+                  "model": { "type": "string", "example": "Treo" },
+                  "plateNumber": { "type": "string", "example": "MP09ER5544" },
+                  "capacity": { "type": "number", "example": 4 },
+                  "isClosedBody": { "type": "boolean", "example": true }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Vehicle details saved"
+          }
+        }
+      }
+    },
+    "/api/driver/status": {
+      "post": {
+        "summary": "Update Driver Service State",
+        "description": "Toggles active operating state (online, offline, break). Online state is locked until admin verifies KYC documents.",
+        "security": [{ "BearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["status"],
+                "properties": {
+                  "status": { "type": "string", "enum": ["offline", "online", "break"], "example": "online" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Service state updated"
+          }
+        }
+      }
+    },
+    "/api/driver/location": {
+      "post": {
+        "summary": "Update Coordinates & Battery Level",
+        "description": "Pipes real-time driver coordinates and vehicle battery capacity metrics to the server.",
+        "security": [{ "BearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["longitude", "latitude"],
+                "properties": {
+                  "longitude": { "type": "number", "example": 75.858 },
+                  "latitude": { "type": "number", "example": 22.72 },
+                  "batteryLevel": { "type": "number", "example": 82 }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Telemetry saved"
+          }
+        }
+      }
+    },
+    "/api/driver/details": {
+      "get": {
+        "summary": "Get Driver Service Profile",
+        "description": "Returns ratings, penalties score, and vehicle documents status.",
+        "security": [{ "BearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "Driver profile JSON",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean", "example": true },
+                    "driver": { "$ref": "#/components/schemas/Driver" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/rides/request": {
+      "post": {
+        "summary": "Request Ride Match",
+        "description": "Calculates local e-rickshaw distance and recommended fare rates, generates OTP tokens, and starts nearby driver scans.",
+        "security": [{ "BearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["pickup", "destination"],
+                "properties": {
+                  "pickup": {
+                    "type": "object",
+                    "properties": {
+                      "address": { "type": "string", "example": "12, Saket Nagar, Indore" },
+                      "location": {
+                        "type": "object",
+                        "properties": {
+                          "type": { "type": "string", "example": "Point" },
+                          "coordinates": { "type": "array", "items": { "type": "number" }, "example": [75.8577, 22.7196] }
+                        }
+                      }
+                    }
+                  },
+                  "destination": {
+                    "type": "object",
+                    "properties": {
+                      "address": { "type": "string", "example": "Indore Junction Station" },
+                      "location": {
+                        "type": "object",
+                        "properties": {
+                          "type": { "type": "string", "example": "Point" },
+                          "coordinates": { "type": "array", "items": { "type": "number" }, "example": [75.864, 22.7258] }
+                        }
+                      }
+                    }
+                  },
+                  "poolingAllowed": { "type": "boolean", "example": false },
+                  "passengerCount": { "type": "number", "example": 1 }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Match request registered",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean", "example": true },
+                    "ride": { "$ref": "#/components/schemas/Ride" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/rides/{id}": {
+      "get": {
+        "summary": "Get Ride Status",
+        "description": "Fetches current ride data, bid updates, and active driver information.",
+        "security": [{ "BearerAuth": [] }],
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" }, "example": "6a3d5029f6b26ab572c903ee" }
+        ],
+        "responses": {
+          "200": {
+            "description": "Ride data JSON",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean", "example": true },
+                    "ride": { "$ref": "#/components/schemas/Ride" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/rides/{id}/cancel": {
+      "post": {
+        "summary": "Cancel Active Booking",
+        "description": "Cancels active ride. Enforces passenger penalty rules (fee applied if driver has travelled) or driver penalty points.",
+        "security": [{ "BearerAuth": [] }],
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "reason": { "type": "string", "example": "Changed plans" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Booking terminated details"
+          }
+        }
+      }
+    },
+    "/api/rides/{id}/verify-start": {
+      "post": {
+        "summary": "Verify Start OTP",
+        "description": "Driver submits passenger's 4-digit code to verify pickup and start tracking ride route.",
+        "security": [{ "BearerAuth": [] }],
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["otp"],
+                "properties": {
+                  "otp": { "type": "string", "example": "5678" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Ride coordinates started"
+          }
+        }
+      }
+    },
+    "/api/rides/{id}/verify-complete": {
+      "post": {
+        "summary": "Verify Complete OTP",
+        "description": "Driver submits passenger's dropoff code to complete ride and process waiting charge calculations.",
+        "security": [{ "BearerAuth": [] }],
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["otp"],
+                "properties": {
+                  "otp": { "type": "string", "example": "9012" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Ride completed"
+          }
+        }
+      }
+    },
+    "/api/deliveries/request": {
+      "post": {
+        "summary": "Request Package Delivery",
+        "description": "Creates delivery booking detailing fragile constraints, package parameters, and dropoff coordinates.",
+        "security": [{ "BearerAuth": [] }],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["packageType", "pickupAddress", "pickupCoords", "recipientName", "recipientPhone", "dropoffAddress", "dropoffCoords"],
+                "properties": {
+                  "packageType": { "type": "string", "enum": ["grocery", "medicine", "documents", "parcel", "other"], "example": "medicine" },
+                  "isFragile": { "type": "boolean", "example": true },
+                  "pickupAddress": { "type": "string", "example": "MedPlus Pharmacy, Vijay Nagar" },
+                  "pickupCoords": { "type": "array", "items": { "type": "number" }, "example": [75.895, 22.752] },
+                  "recipientName": { "type": "string", "example": "Ramesh Kumar" },
+                  "recipientPhone": { "type": "string", "example": "+919425012345" },
+                  "dropoffAddress": { "type": "string", "example": "Scheme 54, Indore" },
+                  "dropoffCoords": { "type": "array", "items": { "type": "number" }, "example": [75.892, 22.748] }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "Delivery request created",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean", "example": true },
+                    "delivery": { "$ref": "#/components/schemas/Delivery" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/deliveries/{id}": {
+      "get": {
+        "summary": "Get Delivery Status",
+        "description": "Fetches active package details, bid lists, and assigned driver details.",
+        "security": [{ "BearerAuth": [] }],
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "responses": {
+          "200": {
+            "description": "Delivery details",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean", "example": true },
+                    "delivery": { "$ref": "#/components/schemas/Delivery" }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/deliveries/{id}/verify-handover": {
+      "post": {
+        "summary": "Verify Handover OTP",
+        "description": "Driver submits recipient code to confirm parcel delivery.",
+        "security": [{ "BearerAuth": [] }],
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["otp"],
+                "properties": {
+                  "otp": { "type": "string", "example": "4432" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Handover completed"
+          }
+        }
+      }
+    },
+    "/api/admin/drivers/pending": {
+      "get": {
+        "summary": "Get Verification Queue",
+        "description": "Fetches list of drivers waiting for KYC document audit approval.",
+        "security": [{ "BearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "Queue array",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "success": { "type": "boolean", "example": true },
+                    "drivers": { "type": "array", "items": { "$ref": "#/components/schemas/Driver" } }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/admin/drivers/{id}/verify": {
+      "post": {
+        "summary": "Verify Driver KYC Docs",
+        "description": "Approves or rejects driver documents and updates operational status.",
+        "security": [{ "BearerAuth": [] }],
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["status"],
+                "properties": {
+                  "status": { "type": "string", "enum": ["verified", "rejected"], "example": "verified" },
+                  "rejectionReason": { "type": "string", "example": "Selfie blurry" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Status updated successfully"
+          }
+        }
+      }
+    },
+    "/api/admin/analytics": {
+      "get": {
+        "summary": "Get Platform Metrics",
+        "description": "Provides stats on active vehicles, bookings, complaints, and aggregate revenue.",
+        "security": [{ "BearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "Analytics dataset"
+          }
+        }
+      }
+    },
+    "/api/admin/complaints": {
+      "get": {
+        "summary": "Get Complaint Logs",
+        "security": [{ "BearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "Complaint log array"
+          }
+        }
+      }
+    },
+    "/api/admin/complaints/{id}/resolve": {
+      "post": {
+        "summary": "Resolve Customer Complaint",
+        "security": [{ "BearerAuth": [] }],
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["resolutionDetails"],
+                "properties": {
+                  "resolutionDetails": { "type": "string", "example": "Warning issued to driver Satnam" }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Complaint resolved"
+          }
+        }
+      }
+    },
+    "/api/admin/sos": {
+      "get": {
+        "summary": "Get Emergency SOS Incidents",
+        "security": [{ "BearerAuth": [] }],
+        "responses": {
+          "200": {
+            "description": "SOS list"
+          }
+        }
+      }
+    },
+    "/api/admin/sos/{id}/resolve": {
+      "post": {
+        "summary": "Resolve Emergency SOS",
+        "security": [{ "BearerAuth": [] }],
+        "parameters": [
+          { "name": "id", "in": "path", "required": true, "schema": { "type": "string" } }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "object",
+                "required": ["resolutionNotes"],
+                "properties": {
+                  "resolutionNotes": { "type": "string", "example": "Driver contacted. False trigger. Passenger safe." }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "SOS resolved"
+          }
+        }
+      }
+    }
+  }
+}

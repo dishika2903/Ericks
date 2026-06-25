@@ -1,0 +1,496 @@
+{
+  "info": {
+    "name": "E-Ricks API Collection",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "API collection for testing and verifying E-Ricks startup MVP backend REST routes."
+  },
+  "item": [
+    {
+      "name": "0. Root & Health",
+      "item": [
+        {
+          "name": "Get Root Page",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/",
+              "host": ["{{base_url}}"],
+              "path": [""]
+            }
+          }
+        },
+        {
+          "name": "Get Health Status",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/health",
+              "host": ["{{base_url}}"],
+              "path": ["health"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "1. Authentication",
+      "item": [
+        {
+          "name": "Send OTP (Simulated)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phone\": \"+919999999999\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/send-otp",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "send-otp"]
+            }
+          }
+        },
+        {
+          "name": "Verify OTP (Get Token)",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"phone\": \"+919999999999\",\n  \"otp\": \"1234\",\n  \"role\": \"passenger\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/verify-otp",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "verify-otp"]
+            }
+          }
+        },
+        {
+          "name": "Register Profile Name",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{passenger_token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Rohan Sharma\",\n  \"email\": \"rohan@example.com\",\n  \"language\": \"hi\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/register",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "register"]
+            }
+          }
+        },
+        {
+          "name": "Get Profile",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{passenger_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/auth/profile",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "profile"]
+            }
+          }
+        },
+        {
+          "name": "Update Profile Details",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{passenger_token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"savedPlaces\": [\n    {\n      \"label\": \"Home\",\n      \"address\": \"12, Saket Nagar, Indore\",\n      \"latitude\": 22.7196,\n      \"longitude\": 75.8577\n    }\n  ],\n  \"emergencyContacts\": [\n    {\n      \"name\": \"Aarti Sharma\",\n      \"phone\": \"+919876543210\",\n      \"relationship\": \"Sister\"\n    }\n  ]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/auth/profile",
+              "host": ["{{base_url}}"],
+              "path": ["api", "auth", "profile"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "2. Drivers",
+      "item": [
+        {
+          "name": "Upload KYC Documents",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{driver_token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"aadhaarNumber\": \"123456789012\",\n  \"aadhaarUrl\": \"http://docs.ericks.com/aadhaar.jpg\",\n  \"licenseNumber\": \"DL-INDORE-2026-9900\",\n  \"licenseUrl\": \"http://docs.ericks.com/dl.jpg\",\n  \"vehicleRcNumber\": \"RC-MP-09-ER-5544\",\n  \"vehicleRcUrl\": \"http://docs.ericks.com/rc.jpg\",\n  \"vehiclePhotoUrl\": \"http://docs.ericks.com/vehicle.jpg\",\n  \"selfieUrl\": \"http://docs.ericks.com/selfie.jpg\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/driver/documents",
+              "host": ["{{base_url}}"],
+              "path": ["api", "driver", "documents"]
+            }
+          }
+        },
+        {
+          "name": "Update Vehicle Specifications",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{driver_token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"make\": \"Mahindra\",\n  \"model\": \"Treo E-Rickshaw\",\n  \"plateNumber\": \"MP09ER5544\",\n  \"capacity\": 4,\n  \"isClosedBody\": true\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/driver/vehicle",
+              "host": ["{{base_url}}"],
+              "path": ["api", "driver", "vehicle"]
+            }
+          }
+        },
+        {
+          "name": "Update Driver Status",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{driver_token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"online\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/driver/status",
+              "host": ["{{base_url}}"],
+              "path": ["api", "driver", "status"]
+            }
+          }
+        },
+        {
+          "name": "Update Coordinates & Battery",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{driver_token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"longitude\": 75.8580,\n  \"latitude\": 22.7200,\n  \"batteryLevel\": 85\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/driver/location",
+              "host": ["{{base_url}}"],
+              "path": ["api", "driver", "location"]
+            }
+          }
+        },
+        {
+          "name": "Get Driver Details",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{driver_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/driver/details",
+              "host": ["{{base_url}}"],
+              "path": ["api", "driver", "details"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "3. Ride Booking",
+      "item": [
+        {
+          "name": "Request Ride",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{passenger_token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"pickup\": {\n    \"address\": \"12, Saket Nagar, Indore\",\n    \"location\": { \"type\": \"Point\", \"coordinates\": [75.8577, 22.7196] }\n  },\n  \"destination\": {\n    \"address\": \"Indore Junction Railway Station\",\n    \"location\": { \"type\": \"Point\", \"coordinates\": [75.8640, 22.7258] }\n  },\n  \"poolingAllowed\": false,\n  \"passengerCount\": 1\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/rides/request",
+              "host": ["{{base_url}}"],
+              "path": ["api", "rides", "request"]
+            }
+          }
+        },
+        {
+          "name": "Get Ride Details",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{passenger_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/rides/{{active_ride_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "rides", "{{active_ride_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Verify Start OTP",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{driver_token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"otp\": \"1234\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/rides/{{active_ride_id}}/verify-start",
+              "host": ["{{base_url}}"],
+              "path": ["api", "rides", "{{active_ride_id}}", "verify-start"]
+            }
+          }
+        },
+        {
+          "name": "Verify Complete OTP",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{driver_token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"otp\": \"1234\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/rides/{{active_ride_id}}/verify-complete",
+              "host": ["{{base_url}}"],
+              "path": ["api", "rides", "{{active_ride_id}}", "verify-complete"]
+            }
+          }
+        },
+        {
+          "name": "Cancel Ride Booking",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{passenger_token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"reason\": \"Driver did not arrive\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/rides/{{active_ride_id}}/cancel",
+              "host": ["{{base_url}}"],
+              "path": ["api", "rides", "{{active_ride_id}}", "cancel"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "4. Deliveries",
+      "item": [
+        {
+          "name": "Request Delivery Service",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{passenger_token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"packageType\": \"medicine\",\n  \"isFragile\": true,\n  \"pickupAddress\": \"MedPlus Pharmacy, Vijay Nagar\",\n  \"pickupCoords\": [75.895, 22.752],\n  \"recipientName\": \"Ramesh Kumar\",\n  \"recipientPhone\": \"+919425012345\",\n  \"dropoffAddress\": \"Scheme 54, Indore\",\n  \"dropoffCoords\": [75.892, 22.748]\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/deliveries/request",
+              "host": ["{{base_url}}"],
+              "path": ["api", "deliveries", "request"]
+            }
+          }
+        },
+        {
+          "name": "Get Delivery Details",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{passenger_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/deliveries/{{active_delivery_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["api", "deliveries", "{{active_delivery_id}}"]
+            }
+          }
+        },
+        {
+          "name": "Verify Handover OTP",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{driver_token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"otp\": \"1234\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/deliveries/{{active_delivery_id}}/verify-handover",
+              "host": ["{{base_url}}"],
+              "path": ["api", "deliveries", "{{active_delivery_id}}", "verify-handover"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "5. Admin Operations",
+      "item": [
+        {
+          "name": "Get Pending Driver Approvals",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{admin_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/drivers/pending",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "drivers", "pending"]
+            }
+          }
+        },
+        {
+          "name": "Verify/Approve Driver Documents",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{admin_token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"status\": \"verified\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/admin/drivers/{{target_driver_id}}/verify",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "drivers", "{{target_driver_id}}", "verify"]
+            }
+          }
+        },
+        {
+          "name": "Get Dashboard Analytics",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{admin_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/analytics",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "analytics"]
+            }
+          }
+        },
+        {
+          "name": "Get Complaints Log",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{admin_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/complaints",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "complaints"]
+            }
+          }
+        },
+        {
+          "name": "Resolve Customer Complaint",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{admin_token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"resolutionDetails\": \"Driver cautioned about charging extra. Logged warning.\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/admin/complaints/{{target_complaint_id}}/resolve",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "complaints", "{{target_complaint_id}}", "resolve"]
+            }
+          }
+        },
+        {
+          "name": "Get Active SOS Panic Alerts",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{admin_token}}" }
+            ],
+            "url": {
+              "raw": "{{base_url}}/api/admin/sos",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "sos"]
+            }
+          }
+        },
+        {
+          "name": "Resolve SOS Incident Alert",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Authorization", "value": "Bearer {{admin_token}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"resolutionNotes\": \"Contacted passenger, verified family pick up. False alert.\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/api/admin/sos/{{target_sos_id}}/resolve",
+              "host": ["{{base_url}}"],
+              "path": ["api", "admin", "sos", "{{target_sos_id}}", "resolve"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
