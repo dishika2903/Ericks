@@ -31,6 +31,19 @@ yarn-error.*
 *.pem
 
 # local env files
+
+
+.env
+.env.*
+
+# VS Code
+.vscode/
+
+# Expo cache
+.expo-shared/
+
+# Logs
+*.log
 .env*.local
 
 # typescript

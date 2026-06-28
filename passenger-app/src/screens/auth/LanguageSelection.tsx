@@ -27,7 +27,7 @@ export const LanguageSelection: React.FC<LangScreenProps> = ({ navigation }) => 
   const [selectedLang, setSelectedLang] = useState<'en' | 'hi' | 'or' | 'ben'>('en');
 
   const handleNext = () => {
-    navigation.navigate('Onboarding');
+    navigation.navigate('Login');
   };
 
   return (

@@ -1,6 +1,5 @@
 export type AuthStackParamList = {
   Splash: undefined;
-  Onboarding: undefined;
   LanguageSelection: undefined;
   Login: undefined;
   OtpVerification: { phone: string; role: string };
